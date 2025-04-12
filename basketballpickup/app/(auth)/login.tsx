@@ -25,6 +25,9 @@ export default function LoginScreen() {
   const [isLogin, setIsLogin] = useState(true);
 
   // Sign-up specific fields
+  const [DisplayName, setDisplayName] = useState('');
+  const [Fname, setFname] = useState('');
+  const [Lname, setLname] = useState('');
   const [age, setAge] = useState('');
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
@@ -48,6 +51,9 @@ export default function LoginScreen() {
 
         await setDoc(doc(db, 'users', userCred.user.uid), {
           email,
+          DisplayName,
+          Fname,
+          Lname,
           age,
           height,
           weight,
@@ -98,6 +104,24 @@ export default function LoginScreen() {
 
       {!isLogin && (
         <>
+            <TextInput
+                placeholder="Display Name"
+                style={styles.input}
+                value={DisplayName}
+                onChangeText={setDisplayName}
+            />
+            <TextInput
+                placeholder="First Name"
+                style={styles.input}
+                value={Fname}
+                onChangeText={setFname}
+            />
+            <TextInput
+                placeholder="Last Name"
+                style={styles.input}
+                value={Lname}
+                onChangeText={setLname}
+            />
           <TextInput
             placeholder="Age"
             style={styles.input}

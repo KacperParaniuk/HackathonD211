@@ -13,9 +13,14 @@ import {
   Modal,
 } from 'react-native';
 import { auth, db } from '../firebase';
+<<<<<<< HEAD
 import { doc, getDoc, updateDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 import { Ionicons } from '@expo/vector-icons'; // Make sure to install expo vector icons
+=======
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { signOut, User } from 'firebase/auth';
+>>>>>>> 328a7d61ebd3b0f340f6cff7485f5d80034c1b4d
 
 const { width, height } = Dimensions.get('window');
 
@@ -123,6 +128,7 @@ export default function Profile() {
     }
   };
 
+<<<<<<< HEAD
   const openEditModal = () => {
     if (profileData) {
       setAgeInput(profileData.age?.toString() || '');
@@ -130,6 +136,13 @@ export default function Profile() {
       setWeightInput(profileData.weight?.toString() || '');
       setGenderInput(profileData.gender || '');
       setEditModalVisible(true);
+=======
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      Alert.alert('Logout Error', 'Something went wrong logging you out.');
+>>>>>>> 328a7d61ebd3b0f340f6cff7485f5d80034c1b4d
     }
   };
 
@@ -162,8 +175,87 @@ export default function Profile() {
             </Text>
           </View>
         )}
+<<<<<<< HEAD
         <Text style={styles.name}>{profileData.displayName || 'No Name'}</Text>
         <Text style={styles.email}>{profileData.email || 'No Email'}</Text>
+=======
+
+        <Text style={styles.text}>Name: {profileData.displayName || 'N/A'}</Text>
+        <Text style={styles.text}>Email: {profileData.email || 'N/A'}</Text>
+
+        {editing ? (
+          <>
+            <TextInput
+              style={styles.input}
+              placeholder="Age"
+              keyboardType="numeric"
+              value={ageInput}
+              onChangeText={setAgeInput}
+              placeholderTextColor="#666"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Height (cm)"
+              keyboardType="numeric"
+              value={heightInput}
+              onChangeText={setHeightInput}
+              placeholderTextColor="#666"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Weight (kg)"
+              keyboardType="numeric"
+              value={weightInput}
+              onChangeText={setWeightInput}
+              placeholderTextColor="#666"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Gender"
+              value={genderInput}
+              onChangeText={setGenderInput}
+              placeholderTextColor="#666"
+            />
+          </>
+        ) : (
+          <>
+            <Text style={styles.text}>Age: {profileData.age ?? 'N/A'}</Text>
+            <Text style={styles.text}>Height: {profileData.height ?? 'N/A'} cm</Text>
+            <Text style={styles.text}>Weight: {profileData.weight ?? 'N/A'} kg</Text>
+            <Text style={styles.text}>Gender: {profileData.gender || 'N/A'}</Text>
+          </>
+        )}
+
+        <Text style={styles.text}>
+          Favorite Sport: {profileData.favoriteSport || 'N/A'}
+        </Text>
+
+        <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              if (editing) {
+                handleSave();
+              } else {
+                setAgeInput(profileData.age?.toString() || '');
+                setHeightInput(profileData.height?.toString() || '');
+                setWeightInput(profileData.weight?.toString() || '');
+                setGenderInput(profileData.gender || '');
+                setEditing(true);
+              }
+            }}
+          >
+            <Text style={styles.buttonText}>{editing ? 'Save Changes' : 'Change Info'}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, styles.logoutButton]}
+            onPress={handleLogout}
+          >
+            <Text style={styles.buttonText}>Log Out</Text>
+          </TouchableOpacity>
+        </View>
+>>>>>>> 328a7d61ebd3b0f340f6cff7485f5d80034c1b4d
       </View>
 
       {/* Personal Info Card */}
@@ -385,6 +477,7 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 'bold',
   },
+<<<<<<< HEAD
   name: {
     fontSize: 22,
     fontWeight: 'bold',
@@ -401,11 +494,29 @@ const styles = StyleSheet.create({
     padding: 16,
     margin: 16,
     shadowColor: '#000',
+=======
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+    marginTop: 20,
+    flexWrap: 'wrap',
+  },
+  button: {
+    backgroundColor: '#8FB339',
+    paddingVertical: 14,
+    paddingHorizontal: 25,
+    borderRadius: 10,
+    marginHorizontal: 6,
+    marginBottom: 10,
+    shadowColor: '#4B5842',
+>>>>>>> 328a7d61ebd3b0f340f6cff7485f5d80034c1b4d
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
   },
+<<<<<<< HEAD
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -414,6 +525,14 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
+=======
+  logoutButton: {
+    backgroundColor: '#4B5842',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+>>>>>>> 328a7d61ebd3b0f340f6cff7485f5d80034c1b4d
     fontWeight: '600',
     color: '#333',
   },
