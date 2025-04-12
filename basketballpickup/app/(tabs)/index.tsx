@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { db } from '../firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { useNavigation } from '@react-navigation/native';
+import { router } from 'expo-router';
 import LottieView from 'lottie-react-native';
 import { Court } from '../types';
 
@@ -33,7 +33,6 @@ const HomeScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   
-  const navigation = useNavigation();
 
   // Function to fetch games data from Firebase
   const fetchGames = async () => {
@@ -90,9 +89,9 @@ const HomeScreen: React.FC = () => {
 
   // Navigate to create game screen
   const handleCreateGame = () => {
-    navigation.navigate('MapView' as never);
+    // Navigate to the create tab
+    router.push('/create');
   };
-
   // Open the game location in Google Maps
   const openInMaps = (latitude: number, longitude: number) => {
     const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
