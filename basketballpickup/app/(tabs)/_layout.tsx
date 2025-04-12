@@ -46,9 +46,9 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="map"
+        name="explore"
         options={{
-          title: 'Map',
+          title: 'Explore',
           tabBarIcon: ({ color, size }) => (
             <Feather name="map" size={size} color={color} />
           ),
