@@ -22,6 +22,7 @@ import { router } from 'expo-router';
 
 interface Game {
   id: string;
+  host: string;
   court: Court;
   time: string;
   playersCount: number;
@@ -71,6 +72,7 @@ const HomeScreen: React.FC = () => {
         const data = doc.data();
         gamesData.push({
           id: doc.id,
+          host: data.host,
           court: data.court,
           time: data.time,
           playersCount: data.playersCount,
@@ -129,7 +131,8 @@ const HomeScreen: React.FC = () => {
       onPress={() => handleGamePress(item)}
     >
       <View style={styles.gameCardHeader}>
-        <Text style={styles.courtName}>{item.court.name || 'Basketball Court'}</Text>
+        <Text style={styles.courtName}>{item.court.name|| 'Basketball Court'}</Text>
+        <Text style={styles.courtName}>{'Host:'+ item.host|| ''}</Text>
         <Text style={styles.gameTime}>{item.time}</Text>
       </View>
       
