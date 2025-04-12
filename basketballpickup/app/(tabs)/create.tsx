@@ -226,6 +226,7 @@ const MapViewScreen: React.FC = () => {
         playersCount,
         skillLevel,
         createdAt: new Date(),
+        signups: Array(playersCount).fill(null)
       };
   
       try {
