@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, Alert, Platform } from 'react-native';
+import { View, Text, Button, StyleSheet, Platform, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { db, auth } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -11,12 +11,11 @@ export default function CreateGame() {
   const [format, setFormat] = useState('3v3');
   const [skill, setSkill] = useState('Beginner');
 
-  // Handle date selection and dismiss picker
-  const onChangeDate = (_event: any, selectedDate?: Date) => {
-    setShowPicker(false); // Dismiss the picker after selecting
-    if (selectedDate) {
-      setDate(selectedDate); // Update the selected date
-    }
+  // Handle date selection
+  const onChangeDate = (event: any, selectedDate?: Date) => {
+    const currentDate = selectedDate || date;
+    setShowPicker(Platform.OS === 'ios'); // Keep picker visible on iOS after selecting
+    setDate(currentDate); // Update date with selected value
   };
 
   // Handle the submit action
@@ -53,7 +52,7 @@ export default function CreateGame() {
           value={date}
           mode="datetime"
           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          onChange={onChangeDate} // Make sure onChange is set properly
+          onChange={onChangeDate} // Handle date change
         />
       )}
 
