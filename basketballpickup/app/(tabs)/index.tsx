@@ -12,11 +12,12 @@ import {
   Alert,
   Linking
 } from 'react-native';
-import { db } from '../firebase';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { db} from '../firebase';
+import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 import { Court } from '../types';
+import { getAuth } from 'firebase/auth';
 
 interface Game {
   id: string;
@@ -32,7 +33,26 @@ const HomeScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  
+
+  const [playerName, setPlayerName] = useState<string>('');
+  useEffect(() => {
+    fetchGames();
+
+    const fetchPlayerName = async () => {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (user) {
+        const userRef = doc(db, 'users', user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          setPlayerName(userData.Fname || '');
+        }
+      }
+    };
+
+    fetchPlayerName();
+  }, []);
   const navigation = useNavigation();
 
   // Function to fetch games data from Firebase
@@ -146,7 +166,9 @@ const HomeScreen: React.FC = () => {
         loop
         style={styles.animation}
       />
-      <Text style={styles.title}>Welcome to Pickup Hoops!</Text>
+      <Text style={styles.title}>
+        {playerName ? `Welcome ${playerName} to PickupHoops!` : 'Welcome to Pickup Hoops!'}
+      </Text>
       <Text style={styles.subtitle}>Find and join local pickup games near you</Text>
     </View>
   );
