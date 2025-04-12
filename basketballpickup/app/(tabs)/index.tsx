@@ -9,7 +9,8 @@ import {
   SafeAreaView,
   RefreshControl,
   StatusBar,
-  Alert
+  Alert,
+  Linking
 } from 'react-native';
 import { db } from '../firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
@@ -80,8 +81,6 @@ const HomeScreen: React.FC = () => {
 
   // Navigate to game details
   const handleGamePress = (game: Game) => {
-    // You can implement navigation to a detail screen
-    // navigation.navigate('GameDetails', { gameId: game.id });
     Alert.alert(
       "Game Details",
       `Court: ${game.court.name || 'Unnamed Court'}\nTime: ${game.time}\nPlayers: ${game.playersCount}\nSkill Level: ${game.skillLevel}`,
@@ -92,6 +91,14 @@ const HomeScreen: React.FC = () => {
   // Navigate to create game screen
   const handleCreateGame = () => {
     navigation.navigate('MapView' as never);
+  };
+
+  // Open the game location in Google Maps
+  const openInMaps = (latitude: number, longitude: number) => {
+    const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+    Linking.openURL(url).catch(err =>
+      console.error('Failed to open Google Maps:', err)
+    );
   };
 
   // Render each game item
@@ -120,6 +127,14 @@ const HomeScreen: React.FC = () => {
       <Text style={styles.dateText}>
         Created: {item.createdAt.toLocaleDateString()}
       </Text>
+
+      {/* Location Button */}
+      <TouchableOpacity
+        onPress={() => openInMaps(item.court.latitude, item.court.longitude)}
+        style={styles.locationButton}
+      >
+        <Text style={styles.locationIcon}>📍</Text>
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 
@@ -268,6 +283,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+    position: 'relative', // So that the location button is positioned correctly
   },
   gameCardHeader: {
     flexDirection: 'row',
@@ -349,6 +365,19 @@ const styles = StyleSheet.create({
   retryText: {
     color: '#8FB339',
     fontWeight: '600',
+  },
+  locationButton: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    backgroundColor: '#8FB339',
+    borderRadius: 20,
+    padding: 6,
+    zIndex: 1,
+  },
+  locationIcon: {
+    fontSize: 16,
+    color: 'white',
   },
 });
 
