@@ -21,13 +21,7 @@ import { collection, addDoc } from 'firebase/firestore'; // Functions from SDK
 import * as Location from 'expo-location';
 
 // Adjust the import path based on where you moved types.ts
-<<<<<<< HEAD
 import { Coords, OverpassResponse, Court } from '../types'; // Assuming types.ts is one level up
-=======
-import { Coords, OverpassResponse, Court } from '../types';
-import { getAuth } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
->>>>>>> 6e8e09e16e6340b24f5cf0a39d90d30a5ceecf5a
 
 const OVERPASS_API_URL = 'https://overpass-api.de/api/interpreter';
 const SEARCH_RADIUS_METERS = 5000; // 5km
@@ -72,40 +66,12 @@ const MapViewScreen: React.FC = () => {
   // Use string for playersCount for easier TextInput handling (parsing happens on submit)
   const [playersCount, setPlayersCount] = useState<string>('');
   const [skillLevel, setSkillLevel] = useState<string>('');
-  const [playerName, setPlayerName] = useState<string>('');
 
   const mapRef = useRef<MapView>(null);
 
-<<<<<<< HEAD
   // --- Effects (Keep existing logic) ---
   useEffect(() => { /* Location fetching logic */
     let isMounted = true; setLoadingLocation(true); setErrorMsg(null);
-=======
-  useEffect(() => {
-    
-      const fetchPlayerName = async () => {
-        const auth = getAuth();
-        const user = auth.currentUser;
-        if (user) {
-          const userRef = doc(db, 'users', user.uid);
-          const userSnap = await getDoc(userRef);
-          if (userSnap.exists()) {
-            const userData = userSnap.data();
-            setPlayerName(userData.DisplayName || '');
-          }
-        }
-      };
-    
-      fetchPlayerName();
-    }, []);
-
-  // Effect 1: Get Location Permissions and User's Coordinates
-  useEffect(() => {
-    let isMounted = true;
-    setLoadingLocation(true);
-    setErrorMsg(null);
-
->>>>>>> 6e8e09e16e6340b24f5cf0a39d90d30a5ceecf5a
     const getLocation = async () => {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') { if (isMounted) { setErrorMsg('Location permission denied.'); Alert.alert("Permission Denied", "Enable location services in settings."); setLoadingLocation(false); } return; }
@@ -161,7 +127,6 @@ const MapViewScreen: React.FC = () => {
   };
 
   const handleCreateGame = async () => {
-<<<<<<< HEAD
     const numPlayers = parseInt(playersCount, 10);
 
     // Simple Validation
@@ -205,44 +170,6 @@ const MapViewScreen: React.FC = () => {
       Alert.alert('Error', 'Failed to create game. Please try again.');
     } finally {
         // setLoading(false);
-=======
-    if (selectedCourt && gameTime && playersCount && skillLevel) {
-      // Clean court data to avoid undefined fields
-      const courtData = {
-        id: selectedCourt.id,
-        latitude: selectedCourt.latitude,
-        longitude: selectedCourt.longitude,
-        name: selectedCourt.name ?? '', // fallback to empty string if name is undefined
-      };
-  
-      const gameData = {
-        host: playerName, // Replace with actual user ID from auth context
-        court: courtData,
-        time: gameTime,
-        playersCount,
-        skillLevel,
-        createdAt: new Date(),
-      };
-  
-      try {
-        const gamesRef = collection(db, 'games');
-        const docRef = await addDoc(gamesRef, gameData);
-  
-        console.log('Game Created with ID:', docRef.id);
-        alert('Game Created Successfully!');
-  
-        // Reset form fields
-        setSelectedCourt(null);
-        setGameTime('');
-        setPlayersCount(0);
-        setSkillLevel('');
-      } catch (error) {
-        console.error('Error creating game:', error);
-        alert('Failed to create game. Please try again.');
-      }
-    } else {
-      alert('Please fill in all fields');
->>>>>>> 6e8e09e16e6340b24f5cf0a39d90d30a5ceecf5a
     }
   };
 
@@ -480,7 +407,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
     padding: Spacing.sm,
     borderRadius: 20,
-    maxHeight: 40,
+    maxHeight: 0,
     zIndex: 10,
   },
    errorOverlayMap: {

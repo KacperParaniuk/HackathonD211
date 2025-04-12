@@ -171,9 +171,9 @@ const HomeScreen: React.FC = () => {
         style={styles.animation}
       />
       <Text style={styles.title}>
-        {playerName ? `Welcome ${playerName} to PickupHoops!` : 'Welcome to Pickup Hoops!'}
+        {playerName ? `Welcome, ${playerName} ` : 'Welcome to Pickup Hoops'}
       </Text>
-      <Text style={styles.subtitle}>Find and join local pickup games near you</Text>
+      <Text style={styles.subtitle}> Manage your local games in Palatine</Text>
     </View>
   );
 
