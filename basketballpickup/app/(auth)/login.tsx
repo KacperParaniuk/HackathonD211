@@ -82,7 +82,7 @@ export default function LoginScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>{'Pick Me Up'}</Text>
+      <Text style={styles.title}>{'PickupHoops'}</Text>
       <Text style={styles.Login}>{isLogin ? 'Login' : 'Sign Up'}</Text>
 
       <TextInput
