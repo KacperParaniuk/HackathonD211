@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { auth, db } from '../firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { User } from 'firebase/auth';
+import { signOut, User } from 'firebase/auth';
 
 const screenHeight = Dimensions.get('window').height;
 
@@ -88,6 +88,14 @@ export default function Profile() {
     } catch (err) {
       console.error(err);
       Alert.alert('Update failed', 'Could not save your changes.');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      Alert.alert('Logout Error', 'Something went wrong logging you out.');
     }
   };
 
@@ -168,22 +176,31 @@ export default function Profile() {
           Favorite Sport: {profileData.favoriteSport || 'N/A'}
         </Text>
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => {
-            if (editing) {
-              handleSave();
-            } else {
-              setAgeInput(profileData.age?.toString() || '');
-              setHeightInput(profileData.height?.toString() || '');
-              setWeightInput(profileData.weight?.toString() || '');
-              setGenderInput(profileData.gender || '');
-              setEditing(true);
-            }
-          }}
-        >
-          <Text style={styles.buttonText}>{editing ? 'Save Changes' : 'Change Info'}</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              if (editing) {
+                handleSave();
+              } else {
+                setAgeInput(profileData.age?.toString() || '');
+                setHeightInput(profileData.height?.toString() || '');
+                setWeightInput(profileData.weight?.toString() || '');
+                setGenderInput(profileData.gender || '');
+                setEditing(true);
+              }
+            }}
+          >
+            <Text style={styles.buttonText}>{editing ? 'Save Changes' : 'Change Info'}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, styles.logoutButton]}
+            onPress={handleLogout}
+          >
+            <Text style={styles.buttonText}>Log Out</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );
@@ -237,16 +254,27 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#C7D59F',
   },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+    marginTop: 20,
+    flexWrap: 'wrap',
+  },
   button: {
     backgroundColor: '#8FB339',
     paddingVertical: 14,
-    paddingHorizontal: 30,
+    paddingHorizontal: 25,
     borderRadius: 10,
-    marginTop: 20,
+    marginHorizontal: 6,
+    marginBottom: 10,
     shadowColor: '#4B5842',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
+  },
+  logoutButton: {
+    backgroundColor: '#4B5842',
   },
   buttonText: {
     color: '#FFFFFF',
