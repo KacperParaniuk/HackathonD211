@@ -10,6 +10,7 @@ import {
   Button,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import { db, collection, addDoc } from '../firebase';
 import * as Location from 'expo-location';
 
 // Adjust the import path based on where you moved types.ts
@@ -34,7 +35,7 @@ const MapViewScreen: React.FC = () => {
   const [isMapReady, setIsMapReady] = useState<boolean>(false);
   const [selectedCourt, setSelectedCourt] = useState<Court | null>(null);
   const [gameTime, setGameTime] = useState<string>('');
-  const [playersCount, setPlayersCount] = useState<string>('');
+  const [playersCount, setPlayersCount] = useState<number>(0);
   const [skillLevel, setSkillLevel] = useState<string>('');
 
   const mapRef = useRef<MapView>(null);
@@ -179,14 +180,46 @@ const MapViewScreen: React.FC = () => {
     setSelectedCourt(court);
   };
 
-  const handleCreateGame = () => {
+  const handleCreateGame = async () => {
     if (selectedCourt && gameTime && playersCount && skillLevel) {
-      // You can save this data to Firebase or navigate to another screen
-      console.log('Game Created', { selectedCourt, gameTime, playersCount, skillLevel });
+      // Clean court data to avoid undefined fields
+      const courtData = {
+        id: selectedCourt.id,
+        latitude: selectedCourt.latitude,
+        longitude: selectedCourt.longitude,
+        name: selectedCourt.name ?? '', // fallback to empty string if name is undefined
+      };
+  
+      const gameData = {
+        court: courtData,
+        time: gameTime,
+        playersCount,
+        skillLevel,
+        createdAt: new Date(),
+      };
+  
+      try {
+        const gamesRef = collection(db, 'games');
+        const docRef = await addDoc(gamesRef, gameData);
+  
+        console.log('Game Created with ID:', docRef.id);
+        alert('Game Created Successfully!');
+  
+        // Reset form fields
+        setSelectedCourt(null);
+        setGameTime('');
+        setPlayersCount(0);
+        setSkillLevel('');
+      } catch (error) {
+        console.error('Error creating game:', error);
+        alert('Failed to create game. Please try again.');
+      }
     } else {
       alert('Please fill in all fields');
     }
   };
+  
+  
 
   if (loadingLocation) {
     return (
@@ -236,7 +269,7 @@ const MapViewScreen: React.FC = () => {
       <View style={styles.formContainer}>
         <Text>Select Court:</Text>
         {selectedCourt ? (
-          <Text>{selectedCourt.name}</Text>
+          <Text>Court Selected</Text>
         ) : (
           <Text>No court selected</Text>
         )}
@@ -252,10 +285,11 @@ const MapViewScreen: React.FC = () => {
         <Text>Number of Players:</Text>
         <TextInput
           style={styles.input}
-          value={playersCount}
-          onChangeText={setPlayersCount}
+          value={playersCount.toString()}
+          onChangeText={(text) => setPlayersCount(parseInt(text) || 0)}
           placeholder="Enter number of players"
           keyboardType="numeric"
+
         />
 
         <Text>Skill Level:</Text>
