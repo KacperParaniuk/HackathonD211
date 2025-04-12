@@ -269,7 +269,7 @@ const MapViewScreen: React.FC = () => {
       <View style={styles.formContainer}>
         <Text>Select Court:</Text>
         {selectedCourt ? (
-          <Text>{selectedCourt.name}</Text>
+          <Text>Court Selected</Text>
         ) : (
           <Text>No court selected</Text>
         )}
