@@ -15,6 +15,8 @@ import * as Location from 'expo-location';
 
 // Adjust the import path based on where you moved types.ts
 import { Coords, OverpassResponse, Court } from '../types';
+import { getAuth } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 const OVERPASS_API_URL = 'https://overpass-api.de/api/interpreter';
 const SEARCH_RADIUS_METERS = 5000; // 5km
@@ -37,8 +39,27 @@ const MapViewScreen: React.FC = () => {
   const [gameTime, setGameTime] = useState<string>('');
   const [playersCount, setPlayersCount] = useState<number>(0);
   const [skillLevel, setSkillLevel] = useState<string>('');
+  const [playerName, setPlayerName] = useState<string>('');
 
   const mapRef = useRef<MapView>(null);
+
+  useEffect(() => {
+    
+      const fetchPlayerName = async () => {
+        const auth = getAuth();
+        const user = auth.currentUser;
+        if (user) {
+          const userRef = doc(db, 'users', user.uid);
+          const userSnap = await getDoc(userRef);
+          if (userSnap.exists()) {
+            const userData = userSnap.data();
+            setPlayerName(userData.DisplayName || '');
+          }
+        }
+      };
+    
+      fetchPlayerName();
+    }, []);
 
   // Effect 1: Get Location Permissions and User's Coordinates
   useEffect(() => {
@@ -191,6 +212,7 @@ const MapViewScreen: React.FC = () => {
       };
   
       const gameData = {
+        host: playerName, // Replace with actual user ID from auth context
         court: courtData,
         time: gameTime,
         playersCount,
