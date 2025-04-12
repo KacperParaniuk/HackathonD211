@@ -33,7 +33,7 @@ interface UserProfile {
 
 interface Friend {
   id: string;
-  displayName: string;
+  DisplayName: string;
   photoURL?: string;
   favoriteSport?: string;
 }
@@ -236,11 +236,11 @@ export default function Profile() {
                 ) : (
                   <View style={styles.friendPlaceholderAvatar}>
                     <Text style={styles.friendAvatarText}>
-                      {friend.displayName.substring(0, 1).toUpperCase()}
+                      {friend.DisplayName.substring(0, 1).toUpperCase()}
                     </Text>
                   </View>
                 )}
-                <Text style={styles.friendName}>{friend.displayName}</Text>
+                <Text style={styles.friendName}>{friend.DisplayName}</Text>
                 {friend.favoriteSport && (
                   <View style={styles.sportBadge}>
                     <Text style={styles.sportText}>{friend.favoriteSport}</Text>

@@ -62,7 +62,7 @@ export default function LoginScreen() {
         });
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message);
+      Alert.alert('Error', "Email or Password is incorrect");
     }
   };
 
