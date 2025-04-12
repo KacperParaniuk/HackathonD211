@@ -17,6 +17,8 @@ import * as Location from 'expo-location';
 import { Coords, OverpassResponse, Court } from '../types';
 import { getAuth } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
+import { Picker } from '@react-native-picker/picker';
+
 
 const OVERPASS_API_URL = 'https://overpass-api.de/api/interpreter';
 const SEARCH_RADIUS_METERS = 5000; // 5km
@@ -40,9 +42,15 @@ const MapViewScreen: React.FC = () => {
   const [playersCount, setPlayersCount] = useState<number>(0);
   const [skillLevel, setSkillLevel] = useState<string>('');
   const [playerName, setPlayerName] = useState<string>('');
-
+  const [selectedHour, setSelectedHour] = useState<number>(1);
+  const [selectedPeriod, setSelectedPeriod] = useState<'AM' | 'PM'>('PM');
+  
   const mapRef = useRef<MapView>(null);
 
+  useEffect(() => {
+    setGameTime(`${selectedHour}${selectedPeriod.toLowerCase()}`);
+  }, [selectedHour, selectedPeriod]);
+  
   useEffect(() => {
     
       const fetchPlayerName = async () => {
@@ -296,13 +304,32 @@ const MapViewScreen: React.FC = () => {
           <Text>No court selected</Text>
         )}
 
-        <Text>Game Time:</Text>
-        <TextInput
-          style={styles.input}
-          value={gameTime}
-          onChangeText={setGameTime}
-          placeholder="Enter game time"
-        />
+      <Text>Game Time:</Text>
+      <View style={styles.row}>
+        <View style={styles.pickerWrapper}>
+          <Picker
+            selectedValue={selectedHour}
+            onValueChange={(itemValue) => setSelectedHour(itemValue)}
+            mode="dropdown"
+          >
+            {[...Array(12)].map((_, i) => (
+              <Picker.Item key={i + 1} label={(i + 1).toString()} value={i + 1} />
+            ))}
+          </Picker>
+        </View>
+
+        <View style={styles.pickerWrapper}>
+          <Picker
+            selectedValue={selectedPeriod}
+            onValueChange={(itemValue) => setSelectedPeriod(itemValue)}
+            mode="dropdown"
+          >
+            <Picker.Item label="AM" value="AM" />
+            <Picker.Item label="PM" value="PM" />
+          </Picker>
+        </View>
+      </View>
+
 
         <Text>Number of Players:</Text>
         <TextInput
@@ -315,14 +342,20 @@ const MapViewScreen: React.FC = () => {
         />
 
         <Text>Skill Level:</Text>
-        <TextInput
-          style={styles.input}
-          value={skillLevel}
-          onChangeText={setSkillLevel}
-          placeholder="Enter skill level"
-        />
+        <View style={styles.pickerWrapper2}>
+          <Picker
+            selectedValue={skillLevel}
+            onValueChange={(itemValue) => setSkillLevel(itemValue)}
+            mode="dropdown"
+          >
+            <Picker.Item label="Beginner" value="Beginner" />
+            <Picker.Item label="Intermediate" value="Intermediate" />
+            <Picker.Item label="Expert" value="Expert" />
+          </Picker>
+        </View>
 
-        <Button title="Create Game" onPress={handleCreateGame} />
+
+        <Button title="Create Game"  onPress={handleCreateGame} />
       </View>
 
       {loadingCourts && (
@@ -340,6 +373,38 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  
+  pickerWrapper: {
+    flex: 1,
+    marginRight: 10, // space between the two pickers
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    overflow: 'hidden',
+  },
+  pickerWrapper2: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  
+  // Optional: remove right margin from the second picker
+  lastPickerWrapper: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    overflow: 'hidden',
+  },
+  
+  
   map: {
     flex: 1,
   },
@@ -368,7 +433,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   formContainer: {
-    padding: 20,
+    
+    padding: 25,
   },
   errorText: {
     fontSize: 16,

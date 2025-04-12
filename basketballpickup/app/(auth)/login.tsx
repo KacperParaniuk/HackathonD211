@@ -43,12 +43,19 @@ export default function LoginScreen() {
   }, []);
 
   const handleSubmit = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  
+    if (!emailRegex.test(email)) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
+      return;
+    }
+  
     try {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
       } else {
         const userCred = await createUserWithEmailAndPassword(auth, email, password);
-
+  
         await setDoc(doc(db, 'users', userCred.user.uid), {
           email,
           DisplayName,
@@ -62,9 +69,10 @@ export default function LoginScreen() {
         });
       }
     } catch (error: any) {
-      Alert.alert('Error', "Email or Password is incorrect");
+      Alert.alert('Error', error.message || 'Email or Password is incorrect');
     }
   };
+  
 
   const handleForgotPassword = async () => {
     if (!email) {
