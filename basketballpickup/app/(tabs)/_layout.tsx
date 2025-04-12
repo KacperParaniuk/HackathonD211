@@ -1,8 +1,8 @@
-import { Stack } from 'expo-router';
-import { auth } from '../firebase';
-import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useState } from 'react';
-import { router } from 'expo-router';
+import { onAuthStateChanged } from 'firebase/auth';
+import { router, Tabs } from 'expo-router';
+import { auth } from '../firebase';
+import { Ionicons, Feather } from '@expo/vector-icons';
 
 export default function TabsLayout() {
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -20,5 +20,49 @@ export default function TabsLayout() {
 
   if (checkingAuth) return null;
 
-  return <Stack />;
+  return (
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: '#007AFF',
+        headerShown: false,
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Home',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="create"
+        options={{
+          title: 'Create',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="add-circle-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="map"
+        options={{
+          title: 'Map',
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="map" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-outline" size={size} color={color} />
+          ),
+        }}
+      />
+    </Tabs>
+  );
 }
