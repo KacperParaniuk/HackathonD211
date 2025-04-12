@@ -21,7 +21,7 @@ import { signOut, User } from 'firebase/auth';
 const { width, height } = Dimensions.get('window');
 
 interface UserProfile {
-  displayName?: string;
+  DisplayName?: string;
   email?: string;
   photoURL?: string;
   favoriteSport?: string;
@@ -62,7 +62,7 @@ export default function Profile() {
           setProfileData(docSnap.data() as UserProfile);
         } else {
           setProfileData({
-            displayName: user.displayName || '',
+            DisplayName: user.displayName || '',
             email: user.email || '',
             photoURL: user.photoURL || '',
           });
@@ -168,11 +168,11 @@ export default function Profile() {
         ) : (
           <View style={styles.placeholderAvatar}>
             <Text style={styles.avatarText}>
-              {profileData.displayName?.substring(0, 2).toUpperCase() || '?'}
+              {profileData.DisplayName?.substring(0, 2).toUpperCase() || '?'}
             </Text>
           </View>
         )}
-        <Text style={styles.name}>{profileData.displayName || 'No Name'}</Text>
+        <Text style={styles.name}>{profileData.DisplayName || 'No Name'}</Text>
         <Text style={styles.email}>{profileData.email || 'No Email'}</Text>
       </View>
 
