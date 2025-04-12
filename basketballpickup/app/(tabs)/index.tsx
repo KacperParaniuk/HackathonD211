@@ -13,7 +13,7 @@ import {
   Linking
 } from 'react-native';
 import { db } from '../firebase';
-import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 import { Court } from '../types';
@@ -28,6 +28,7 @@ interface Game {
   playersCount: number;
   skillLevel: string;
   createdAt: Date;
+  signups: Array<{ uid: string; name: string | null } | null>
 }
 
 const HomeScreen: React.FC = () => {
@@ -38,6 +39,42 @@ const HomeScreen: React.FC = () => {
   const [playerName, setPlayerName] = useState<string>('');
 
   const navigation = useNavigation();
+
+  const handleSignUp = async (gameId: string, slotIndex: number) => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+  
+    if (!user) return;
+  
+    const gameRef = doc(db, 'games', gameId);
+    const gameSnap = await getDoc(gameRef);
+  
+    if (!gameSnap.exists()) return;
+  
+    const gameData = gameSnap.data();
+    const signups = gameData.signups || [];
+  
+    // Check if the user is already signed up
+    const alreadySignedUp = signups.some(
+      (entry: any) => entry?.uid === user.uid
+    );
+    if (alreadySignedUp) {
+      Alert.alert('Already Signed Up', 'You’ve already taken a spot.');
+      return;
+    }
+  
+    const userRef = doc(db, 'users', user.uid);
+    const userSnap = await getDoc(userRef);
+    const userName = userSnap.exists() ? userSnap.data().Fname : 'Unknown';
+  
+    signups[slotIndex] = { uid: user.uid, name: userName };
+  
+    await updateDoc(gameRef, {
+      signups: signups,
+    });
+  
+    fetchGames(); // Refresh the list
+  };
   useEffect(() => {
     fetchGames();
   
@@ -78,6 +115,7 @@ const HomeScreen: React.FC = () => {
           playersCount: data.playersCount,
           skillLevel: data.skillLevel,
           createdAt: data.createdAt.toDate(), // Convert Firestore timestamp to JS Date
+          signups: data.signups || []
         });
       });
       
@@ -125,42 +163,86 @@ const HomeScreen: React.FC = () => {
   };
 
   // Render each game item
-  const renderGameItem = ({ item }: { item: Game }) => (
-    <TouchableOpacity 
-      style={styles.gameCard}
-      onPress={() => handleGamePress(item)}
-    >
-      <View style={styles.gameCardHeader}>
-        <Text style={styles.courtName}>{item.court.name|| 'Basketball Court'}</Text>
-        <Text style={styles.courtName}>{'Host:'+ item.host|| ''}</Text>
-        <Text style={styles.gameTime}>{item.time}</Text>
-      </View>
-      
-      <View style={styles.gameInfo}>
-        <View style={styles.infoItem}>
-          <Text style={styles.infoLabel}>Players:</Text>
-          <Text style={styles.infoValue}>{item.playersCount}</Text>
-        </View>
-        
-        <View style={styles.infoItem}>
-          <Text style={styles.infoLabel}>Skill Level:</Text>
-          <Text style={styles.infoValue}>{item.skillLevel}</Text>
-        </View>
-      </View>
-      
-      <Text style={styles.dateText}>
-        Created: {item.createdAt.toLocaleDateString()}
-      </Text>
-
-      {/* Location Button */}
-      <TouchableOpacity
-        onPress={() => openInMaps(item.court.latitude, item.court.longitude)}
-        style={styles.locationButton}
+  const renderGameItem = ({ item }: { item: Game }) => {
+    const handleSignUp = async (slotIndex: number) => {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user || !playerName) return;
+  
+      const gameRef = doc(db, 'games', item.id);
+      const gameSnap = await getDoc(gameRef);
+      if (!gameSnap.exists()) return;
+  
+      const data = gameSnap.data();
+      const signups = data.signups || [];
+  
+      // Already signed up?
+      if (signups.find((p: any) => p.id === user.uid)) return;
+  
+      // If slot is empty, allow signup
+      if (signups[slotIndex]==null) {
+        signups[slotIndex] = { id: user.uid, name: user.displayName };
+        await updateDoc(gameRef, { signups });
+        fetchGames(); // Refresh the list
+      }
+    };
+  
+    return (
+      <TouchableOpacity 
+        style={styles.gameCard}
+        onPress={() => handleGamePress(item)}
+        activeOpacity={1}
       >
-        <Text style={styles.locationIcon}>📍</Text>
+        <View style={styles.gameCardHeader}>
+          <Text style={styles.courtName}>{item.court.name || 'Basketball Court'}</Text>
+          <Text style={styles.courtName}>{'Host: ' + item.host}</Text>
+          <Text style={styles.gameTime}>{item.time}</Text>
+        </View>
+  
+        <View style={styles.gameInfo}>
+          <View style={styles.infoItem}>
+            <Text style={styles.infoLabel}>Players:</Text>
+            <Text style={styles.infoValue}>{item.playersCount}</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Text style={styles.infoLabel}>Skill Level:</Text>
+            <Text style={styles.infoValue}>{item.skillLevel}</Text>
+          </View>
+        </View>
+  
+        {/* Sign-up sheet */}
+        <View style={styles.signUpContainer}>
+          {Array.from({ length: item.playersCount }).map((_, index) => {
+            const player = item.signups?.[index];
+            return (
+              <TouchableOpacity
+                key={index}
+                style={[styles.slot, player ? styles.filledSlot : styles.emptySlot]}
+                onPress={() => !player && handleSignUp(index)}
+                disabled={!!player}
+              >
+                <Text style={styles.slotText}>
+                  {player ? player.name : 'Tap to Join'}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+  
+        <Text style={styles.dateText}>
+          Created: {item.createdAt.toLocaleDateString()}
+        </Text>
+  
+        <TouchableOpacity
+          onPress={() => openInMaps(item.court.latitude, item.court.longitude)}
+          style={styles.locationButton}
+        >
+          <Text style={styles.locationIcon}>📍</Text>
+        </TouchableOpacity>
       </TouchableOpacity>
-    </TouchableOpacity>
-  );
+    );
+  };
+  
 
   const renderWelcomeHeader = () => (
     <View style={styles.welcomeContainer}>
@@ -251,6 +333,38 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#3A4634',
   },
+  signUpContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginVertical: 8,
+    gap: 6,
+  },
+  
+  slot: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    minWidth: 90,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  emptySlot: {
+    backgroundColor: '#DADDD8',
+    borderColor: '#8FB339',
+    borderWidth: 1,
+  },
+  
+  filledSlot: {
+    backgroundColor: '#8FB339',
+  },
+  
+  slotText: {
+    color: '#4B5842',
+    fontWeight: '500',
+    fontSize: 13,
+  },
+  
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
