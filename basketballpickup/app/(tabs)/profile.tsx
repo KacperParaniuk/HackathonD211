@@ -49,6 +49,15 @@ export default function Profile() {
   const [heightInput, setHeightInput] = useState<string>('');
   const [weightInput, setWeightInput] = useState<string>('');
   const [genderInput, setGenderInput] = useState<string>('');
+  const [findFriendsModalVisible, setFindFriendsModalVisible] = useState(false);
+
+  const fakeFriendSuggestions: Friend[] = [
+    { id: 'f1', DisplayName: 'Michael Jordan', favoriteSport: 'Basketball' },
+    { id: 'f2', DisplayName: 'LeBron James', favoriteSport: 'Basketball' },
+    { id: 'f3', DisplayName: 'Adem Bona', favoriteSport: 'Basketball' },
+    { id: 'f4', DisplayName: 'Jarrett Allen', favoriteSport: 'Basketball' },
+  ];
+
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -252,9 +261,13 @@ export default function Profile() {
             <View style={styles.emptyFriends}>
               <Ionicons name="people" size={40} color="#ccc" />
               <Text style={styles.emptyText}>No friends added yet</Text>
-              <TouchableOpacity style={styles.addFriendButton}>
+              
+              <TouchableOpacity
+                style={styles.addFriendButton}
+                onPress={() => setFindFriendsModalVisible(true)}
+>
                 <Text style={styles.addFriendText}>Find Friends</Text>
-              </TouchableOpacity>
+                </TouchableOpacity>
             </View>
           )}
         </View>
@@ -287,6 +300,48 @@ export default function Profile() {
       </TouchableOpacity>
 
       {/* Edit Profile Modal */}
+
+        <Modal
+    animationType="slide"
+    transparent={true}
+    visible={findFriendsModalVisible}
+    onRequestClose={() => setFindFriendsModalVisible(false)}
+  >
+    <View style={styles.modalContainer}>
+      <View style={styles.modalContent}>
+        <View style={styles.modalHeader}>
+          <Text style={styles.modalTitle}>Suggested Friends</Text>
+          <TouchableOpacity onPress={() => setFindFriendsModalVisible(false)}>
+            <Ionicons name="close" size={24} color="#333" />
+          </TouchableOpacity>
+        </View>
+
+        {fakeFriendSuggestions.map(friend => (
+          <View key={friend.id} style={styles.friendCard}>
+            <View style={styles.friendPlaceholderAvatar}>
+              <Text style={styles.friendAvatarText}>
+                {friend.DisplayName[0]}
+              </Text>
+            </View>
+            <Text style={styles.friendName}>{friend.DisplayName}</Text>
+            {friend.favoriteSport && (
+              <View style={styles.sportBadge}>
+                <Text style={styles.sportText}>{friend.favoriteSport}</Text>
+              </View>
+            )}
+          </View>
+        ))}
+
+        <TouchableOpacity
+          style={[styles.actionButton, styles.cancelButton, { alignSelf: 'center', marginTop: 16 }]}
+          onPress={() => setFindFriendsModalVisible(false)}
+        >
+          <Text style={styles.cancelButtonText}>Close</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </Modal>
+
       <Modal
         animationType="slide"
         transparent={true}
