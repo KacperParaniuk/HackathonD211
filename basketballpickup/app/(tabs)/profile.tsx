@@ -14,8 +14,9 @@ import {
 } from 'react-native';
 import { auth, db } from '../firebase';
 import { doc, getDoc, updateDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
-import { User } from 'firebase/auth';
+// import { User } from 'firebase/auth';
 import { Ionicons } from '@expo/vector-icons'; // Make sure to install expo vector icons
+import { signOut, User } from 'firebase/auth';
 
 const { width, height } = Dimensions.get('window');
 
@@ -122,6 +123,15 @@ export default function Profile() {
       Alert.alert('Update failed', 'Could not save your changes.');
     }
   };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      Alert.alert('Logout Error', 'Something went wrong logging you out.');
+    }
+  };
+
 
   const openEditModal = () => {
     if (profileData) {
@@ -249,6 +259,32 @@ export default function Profile() {
           )}
         </View>
       </View>
+
+      {/* Logout Button */}
+      <TouchableOpacity
+        style={styles.logoutButton}
+        onPress={() => {
+          Alert.alert(
+            'Logout',
+            'Are you sure you want to logout?',
+            [
+              {
+                text: 'Cancel',
+                style: 'cancel',
+              },
+              {
+                text: 'Logout',
+                onPress: handleLogout,
+                style: 'destructive',
+              },
+            ],
+            { cancelable: true }
+          );
+        }}
+      >
+        <Ionicons name="log-out-outline" size={20} color="#fff" style={styles.logoutIcon} />
+        <Text style={styles.logoutText}>Logout</Text>
+      </TouchableOpacity>
 
       {/* Edit Profile Modal */}
       <Modal
@@ -509,6 +545,31 @@ const styles = StyleSheet.create({
   addFriendText: {
     color: '#4C68D7',
     fontWeight: '500',
+  },
+  // Logout button styles
+  logoutButton: {
+    backgroundColor: '#ff3b30',
+    margin: 16,
+    marginTop: 8,
+    marginBottom: 30,
+    paddingVertical: 12,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoutText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  logoutIcon: {
+    marginRight: 8,
   },
   modalContainer: {
     flex: 1,
